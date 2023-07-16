@@ -1,0 +1,25 @@
+{
+  "name": "@1uprouter/next13",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm next build",
+    "clean": "rm -rf .next .turbo node_modules",
+    "dev": "pnpm next dev",
+    "lint": "pnpm next lint",
+    "lint:fix": "pnpm lint --fix",
+    "start": "pnpm next start"
+  },
+  "dependencies": {
+    "@1uprouter/core": "*",
+    "next": "13.4.5-canary.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.9",
+    "typescript": "^4.9.4"
+  }
+}

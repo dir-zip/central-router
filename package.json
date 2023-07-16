@@ -1,0 +1,28 @@
+{
+  "name": "1uprouter",
+  "private": true,
+  "packageManager": "pnpm@7.13.0",
+  "workspaces": [
+    "examples/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "clean": "pnpm clean:workspaces && rm -rf node_modules",
+    "clean:workspaces": "turbo clean",
+    "dev": "turbo dev --parallel",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "turbo lint"
+  },
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.46.0",
+    "@typescript-eslint/parser": "^5.46.0",
+    "eslint": "^8.30.0",
+    "eslint-config-prettier": "^8.6.0",
+    "prettier": "^2.8.1",
+    "turbo": "^1.6.3"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4"
+  }
+}

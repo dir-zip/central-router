@@ -1,0 +1,22 @@
+{
+  "name": "@1uprouter/core",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "license": "MIT",
+  "scripts": {
+    "dev": "tsup --watch --dts",
+    "build": "tsup --dts",
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "react": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "tsup": "^6.6.3"
+  }
+}
