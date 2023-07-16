@@ -1,4 +1,4 @@
-import Router from "@1uprouter/core";
+import Router from "@1upsaas/1uprouter";
 
 const router = new Router();
 

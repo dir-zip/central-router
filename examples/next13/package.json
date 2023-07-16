@@ -1,5 +1,5 @@
 {
-  "name": "@1uprouter/next13",
+  "name": "@1uprouter/next",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,7 +11,7 @@
     "start": "pnpm next start"
   },
   "dependencies": {
-    "@1uprouter/core": "*",
+    "@1upsaas/1uprouter": "*",
     "next": "13.4.5-canary.3",
     "react": "18.2.0",
     "react-dom": "18.2.0"

@@ -23,7 +23,7 @@ importers:
 
   examples/next13:
     specifiers:
-      '@1uprouter/core': '*'
+      '@1upsaas/1uprouter': '*'
       '@types/node': ^18.0.0
       '@types/react': ^18.0.25
       '@types/react-dom': ^18.0.9
@@ -32,7 +32,7 @@ importers:
       react-dom: 18.2.0
       typescript: ^4.9.4
     dependencies:
-      '@1uprouter/core': link:../../packages/core
+      '@1upsaas/1uprouter': link:../..
       next: 13.4.5-canary.3_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0

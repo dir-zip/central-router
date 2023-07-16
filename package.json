@@ -1,5 +1,5 @@
 {
-  "name": "1uprouter",
+  "name": "@1upsaas/1uprouter",
   "private": true,
   "packageManager": "pnpm@7.13.0",
   "workspaces": [
@@ -24,5 +24,19 @@
   },
   "devDependencies": {
     "typescript": "^4.9.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1upsaas/1uprouter.git"
+  },
+  "keywords": [
+    "nextjs"
+  ],
+  "author": "Dillon Raphael",
+  "license": "MIT",
+  "types": "./packages/core/dist/index.d.ts",
+  "bugs": {
+    "url": "https://github.com/1upsaas/1uprouter/issues"
+  },
+  "homepage": "https://github.com/1upsaas/1uprouter#readme"
 }
