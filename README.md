@@ -1,12 +1,18 @@
-# 1uprouter
+# 🍄 1uprouter
 
-A nextjs router for the react server components era
+A nextjs router for the react server components era.
+
+Brought to you by [1upsaas](https://1upsaas.com), a nextjs saas boilerplate. Build your saas at the speed of thought.
 
 ## Getting started
+Install the package
 
 ```shell
 npm install @1upsaas/1uprouter
 ```
+
+Then create the following files:
+
 `lib/router.tsx`
 ```ts
 import Router from "@1upsaas/1uprouter";
