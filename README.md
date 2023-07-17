@@ -1,8 +1,8 @@
 # 🍄 1uprouter
 
-A nextjs router for the react server components era.
+A server side router for the react server components era.
 
-Brought to you by [1upsaas](https://1upsaas.com), a nextjs saas boilerplate. Build your saas at the speed of thought.
+An experiment brought to you by [1upsaas](https://1upsaas.com), a nextjs saas boilerplate. Build your saas at the speed of thought.
 
 ## Getting started
 Install the package
@@ -51,4 +51,4 @@ export default async function Page({params}: {params: {"1up": string[]} }) {
 
 ## Notes
 
-Because of the nature of this library, it can only be used with a server. Since there is only 1 wildcard route, static exports will not work (for now).
+Because of the nature of this library, it can only be used with a server. Since there is only 1 wildcard route, static exports will not work (for now). We can explore this with a generator that reads your routes.
