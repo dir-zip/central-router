@@ -48,3 +48,7 @@ export default async function Page({params}: {params: {"1up": string[]} }) {
   return router.init(getParams);
 }
 ```
+
+## Notes
+
+Because of the nature of this library, it can only be used with a server. Since there is only 1 wildcard route, static exports will not work (for now).
