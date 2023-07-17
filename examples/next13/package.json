@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "pnpm next build",
+    "build": "next build",
     "clean": "rm -rf .next .turbo node_modules",
-    "dev": "pnpm next dev",
-    "lint": "pnpm next lint",
+    "dev": "next dev",
+    "lint": "next lint",
     "lint:fix": "pnpm lint --fix",
-    "start": "pnpm next start"
+    "start": "next start"
   },
   "dependencies": {
     "@1upsaas/1uprouter": "*",
-    "next": "13.4.5-canary.3",
+    "next": "13.4.10",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },

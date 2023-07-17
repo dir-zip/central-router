@@ -1,5 +1,5 @@
 {
-  "name": "@1upsaas/1uprouter",
+  "name": "@1upsaas/1uprouter-root",
   "private": true,
   "packageManager": "pnpm@7.13.0",
   "workspaces": [
