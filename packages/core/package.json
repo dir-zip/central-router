@@ -1,9 +1,9 @@
 {
   "name": "@1upsaas/1uprouter",
-  "version": "0.1.0",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "version": "0.1.1",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "sideEffects": false,
   "license": "MIT",
   "scripts": {
