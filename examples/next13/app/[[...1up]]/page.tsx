@@ -32,10 +32,16 @@ export default async function Page({params}: {params: {"1up": string[]} }) {
   router.addRoute('/admin', async() => {
     return <div>Admin page</div>
   })
+  
+  router.addRoute("/billing/webhook", async () => {
+    return new Response("hello", { status: 200 })
+  }, "api:GET")
 
   router.addRoute("/", async() => {
     return <div>This is a test without a layout</div>
   })
+
+
 
 
   return router.init(getParams);

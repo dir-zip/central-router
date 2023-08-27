@@ -1,8 +1,12 @@
 import React from "react";
 
-type RouteHandler<T extends RouteParams<string>> = (params: T) => Promise<React.ReactElement>;
+export type RouteType = "page" | "api:GET" | "api:POST" | "api:PUT" | "api:DELETE" | "api:PATCH"
 
-type RouteParams<Path extends string> = Path extends `${infer Segment}/${infer Rest}`
+export type RouteMethods = "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
+
+export type RouteHandler<T extends RouteParams<string>> = (params: T) => Promise<React.ReactElement | Response>;
+
+export type RouteParams<Path extends string> = Path extends `${infer Segment}/${infer Rest}`
   ? Segment extends `:${infer Param}`
     ? { [K in Param]: string } & RouteParams<Rest>
     : RouteParams<Rest>
@@ -15,6 +19,8 @@ interface Route<Path extends string> {
   handler: RouteHandler<RouteParams<Path>>;
   hasParams: boolean;
   priority: number;
+  type?: RouteType;
+  method?: RouteMethods | string | null
 }
 type LayoutHandler = ({children}: {children: React.ReactNode}) => Promise<React.ReactElement>
 
@@ -35,13 +41,17 @@ class Router {
     this.currentRoute = '';
   }
 
-  public addRoute<Path extends string>(path: Path, handler: RouteHandler<RouteParams<Path>>) {
+  public addRoute<Path extends string>(path: Path, handler: RouteHandler<RouteParams<Path>>, type: RouteType = "page") {
     const hasParams = path.includes(':');
+    const getType = type.includes(':') ? 'api' : 'page'
+
     this.routes.push({
-      path,
+      path: getType === "api" ? `/api${path}` : path,
       handler,
       hasParams,
-      priority: this.calculatePriority(path)
+      priority: this.calculatePriority(path),
+      type,
+      method: getType === "api" ? type.split(":")[1] : "GET"
     });
   
     // make sure the list is sorted in descending order of priority
@@ -59,19 +69,57 @@ class Router {
     this.layouts.sort((a, b) => b.priority - a.priority);
   }
 
-  public async init(pathArray: string[]): Promise<React.ReactElement | null> {
+  public async init(pathArray: string[]): Promise<React.ReactElement | Response | null> {
     const pathString = pathArray ? "/" + pathArray.join("/") : "/"
     const { route, params } = this.findMatchingRoute(pathString);
+
     if (pathString === '/favicon.ico') {
       return null;
     }
+
     if (route) {
       this.currentRoute = route.path !== '/favicon.ico' ? route.path : this.currentRoute
       return await route.handler(params);
     } else {
-      console.log(`No route found for ${pathString}`);
-      return null;
+      throw new Error(`No route found for ${pathString}`)
     }
+  }
+
+  public initApiRoute() {
+
+    const handleRoute = async (request, context) => {
+      const pathString = context.params['1up'] ? "/api/" + context.params['1up'].join("/") : "/"
+      const { route, params } = this.findMatchingRoute("/api/" + context.params['1up'].join("/"));
+
+      if(route && route.method === request.method) {
+        this.currentRoute = route.path
+        return await route.handler(params);
+      } else {
+        throw new Error(`No route found for ${pathString}`)
+      }
+    }
+
+    return {
+      GET: async function GET(request, context) {
+        return await handleRoute(request, context)
+      },
+      POST: async function POST(request, context) {
+        return await handleRoute(request, context)
+      },
+      HEAD: async function HEAD(request, context) {
+        return await handleRoute(request, context)
+      },
+      PUT: async function PUT(request, context) {
+        return await handleRoute(request, context)
+      },
+      DELETE: async function DELETE(request, context) {
+        return await handleRoute(request, context)
+      },
+      PATCH: async function PATCH(request, context) {
+        return await handleRoute(request, context)
+      }
+    }
+
   }
 
   public async initLayout({children}: {children: React.ReactNode}) {
