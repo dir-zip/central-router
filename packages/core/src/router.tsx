@@ -1,10 +1,11 @@
 import React from "react";
+import {NextRequest} from 'next/server'
 
 export type RouteType = "page" | "api:GET" | "api:POST" | "api:PUT" | "api:DELETE" | "api:PATCH"
 
 export type RouteMethods = "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
 
-export type RouteHandler<T extends RouteParams<string>> = (params: T) => Promise<React.ReactElement | Response>;
+export type RouteHandler<T extends RouteParams<string>> = (params: T, request: NextRequest | null) => Promise<React.ReactElement | Response>;
 
 export type RouteParams<Path extends string> = Path extends `${infer Segment}/${infer Rest}`
   ? Segment extends `:${infer Param}`
@@ -79,7 +80,7 @@ class Router {
 
     if (route) {
       this.currentRoute = route.path !== '/favicon.ico' ? route.path : this.currentRoute
-      return await route.handler(params);
+      return await route.handler(params, null);
     } else {
       throw new Error(`No route found for ${pathString}`)
     }
@@ -93,7 +94,7 @@ class Router {
 
       if(route && route.method === request.method) {
         this.currentRoute = route.path
-        return await route.handler(params);
+        return await route.handler(params, request);
       } else {
         throw new Error(`No route found for ${pathString}`)
       }
