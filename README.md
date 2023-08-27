@@ -70,7 +70,9 @@ You can add routes inside the catch all page that you initially created. You can
 | --- | --- |
 | path | The path for a route. Can contain url parameters like `/:slug`. These are fully typed.|
 | handler | An async function that either returns a JSX element or Response. |
-| type | Can either be a `page` or api route (`api:GET` | `api:POST` | `api:PATCH` | `api:DELETE` | `api:PUT`). |
+| type | Can either be a page or api route. |
+
+The type accepts a string of either `page` or (`api:GET` | `api:POST` | `api:PATCH` | `api:DELETE` | `api:PUT`)
 
 If you use any of the api types, the path will automatically be prefixed with `/api/...`. By default, if you don't provide a type it will be considered a page and expect a JSX element.
 
