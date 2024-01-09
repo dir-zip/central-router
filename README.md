@@ -1,21 +1,21 @@
-# 🍄 1uprouter
+# Central Router 
 
 A server side router for the react server components era.
 
-An experiment brought to you by [1upsaas](https://1upsaas.com), a nextjs saas boilerplate. Build your saas at the speed of thought.
+An experiment brought to you by dir.zip 
 
 ## Getting started
 Install the package
 
 ```shell
-npm install @1upsaas/1uprouter
+npm install @dir.zip/central-router
 ```
 
 Then create the following files:
 
 `lib/router.tsx`
 ```ts
-import Router from "@1upsaas/1uprouter";
+import Router from "@dir.zip/central-router";
 const router = new Router();
 export default router
 ```

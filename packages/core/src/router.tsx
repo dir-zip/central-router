@@ -1,5 +1,5 @@
 import React from "react";
-import {NextRequest} from 'next/server'
+import { NextRequest } from 'next/server'
 
 export type RouteType = "page" | "api:GET" | "api:POST" | "api:PUT" | "api:DELETE" | "api:PATCH"
 
@@ -9,8 +9,8 @@ export type RouteHandler<T extends RouteParams<string>> = (params: T, request: N
 
 export type RouteParams<Path extends string> = Path extends `${infer Segment}/${infer Rest}`
   ? Segment extends `:${infer Param}`
-    ? { [K in Param]: string } & RouteParams<Rest>
-    : RouteParams<Rest>
+  ? { [K in Param]: string } & RouteParams<Rest>
+  : RouteParams<Rest>
   : Path extends `:${infer Param}`
   ? { [K in Param]: string }
   : Record<string, never>;
@@ -23,7 +23,7 @@ interface Route<Path extends string> {
   type?: RouteType;
   method?: RouteMethods | string | null
 }
-type LayoutHandler = ({children}: {children: React.ReactNode}) => Promise<React.ReactElement>
+type LayoutHandler = ({ children }: { children: React.ReactNode }) => Promise<React.ReactElement>
 
 interface Layout<Path extends string> {
   path: Path;
@@ -54,7 +54,7 @@ class Router {
       type,
       method: getType === "api" ? type.split(":")[1] : "GET"
     });
-  
+
     // make sure the list is sorted in descending order of priority
     this.routes.sort((a, b) => b.priority - a.priority);
   }
@@ -65,7 +65,7 @@ class Router {
       handler,
       priority: this.calculatePriority(path)
     });
-    
+
     // make sure the list is sorted in descending order of priority
     this.layouts.sort((a, b) => b.priority - a.priority);
   }
@@ -89,10 +89,10 @@ class Router {
   public initApiRoute() {
 
     const handleRoute = async (request, context) => {
-      const pathString = context.params['1up'] ? "/api/" + context.params['1up'].join("/") : "/"
-      const { route, params } = this.findMatchingRoute("/api/" + context.params['1up'].join("/"));
+      const pathString = context.params['router'] ? "/api/" + context.params['router'].join("/") : "/"
+      const { route, params } = this.findMatchingRoute("/api/" + context.params['router'].join("/"));
 
-      if(route && route.method === request.method) {
+      if (route && route.method === request.method) {
         this.currentRoute = route.path
         return await route.handler(params, request);
       } else {
@@ -123,23 +123,23 @@ class Router {
 
   }
 
-  public async initLayout({children}: {children: React.ReactNode}) {
-    if(this.currentRoute) {
+  public async initLayout({ children }: { children: React.ReactNode }) {
+    if (this.currentRoute) {
       const layout = this.findMatchingLayout(this.currentRoute);
 
-      if(layout) {
-        return await layout.handler({children});
+      if (layout) {
+        return await layout.handler({ children });
       }
-  
-      const Layout = async ({children}: {children: React.ReactNode}) => {
+
+      const Layout = async ({ children }: { children: React.ReactNode }) => {
         return (
           <>
             {children}
           </>
         )
       }
-  
-      return await Layout({children});
+
+      return await Layout({ children });
     }
   }
 
@@ -154,9 +154,9 @@ class Router {
       return 2;
     }
   }
-  
 
-  
+
+
   private findMatchingLayout(path: string, layouts = this.layouts): Layout<any> | null {
     const { route } = this.findMatchingRoute(path);
     if (route) {
@@ -182,9 +182,9 @@ class Router {
         const params = this.extractParams(path, routePath);
 
         if (!bestMatch ||
-            routePath.split("/").length > bestMatch.path.split("/").length ||
-            (!route.hasParams && bestMatch.hasParams) ||
-            (this.isExactMatch(path, routePath) && !this.isExactMatch(path, bestMatch.path))) {
+          routePath.split("/").length > bestMatch.path.split("/").length ||
+          (!route.hasParams && bestMatch.hasParams) ||
+          (this.isExactMatch(path, routePath) && !this.isExactMatch(path, bestMatch.path))) {
           bestMatch = route;
           bestParams = params;
         }
@@ -243,7 +243,7 @@ class Router {
 
     if (routeSegment && routeSegment?.startsWith(":")) {
       const paramName = routeSegment.slice(1)
-      if(pathSegment) {
+      if (pathSegment) {
         params[paramName] = pathSegment;
       }
 

@@ -1,4 +1,4 @@
-import Router from "@1upsaas/1uprouter";
+import Router from "@dir.zip/central-router";
 
 const router = new Router();
 

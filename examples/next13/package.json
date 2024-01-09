@@ -1,5 +1,5 @@
 {
-  "name": "@1uprouter/next",
+  "name": "@dir.zip-central-router/next",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,7 +11,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@1upsaas/1uprouter": "*",
+    "@dir.zip/central-router": "workspace: *",
     "next": "13.4.10",
     "react": "18.2.0",
     "react-dom": "18.2.0"
