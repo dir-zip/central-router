@@ -20,7 +20,7 @@ const router = new Router();
 export default router
 ```
 
-`app/[[...1up]]/layout.tsx`
+`app/[[...router]]/layout.tsx`
 ```tsx
 import router from '../../lib/router'
 
@@ -33,7 +33,7 @@ export default async function Layout({
 }
 ```
 
-`app/[[...1up]]/page.tsx`
+`app/[[...router]]/page.tsx`
 
 ```tsx
 import router from "../../lib/router";
@@ -49,7 +49,7 @@ export default async function Page({params}: {params: {"1up": string[]} }) {
 }
 ```
 
-`app/api/[[...1up]]/route.ts`
+`app/api/[[...router]]/route.ts`
 
 ```ts
 import router from '../../lib/router';
