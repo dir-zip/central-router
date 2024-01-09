@@ -3,7 +3,8 @@ import router from "../../lib/router";
 export default async function Page({ params }: { params: { "router": string[] } }) {
   const getParams = params["router"];
 
-  await router.createLayout("/admin/*", async ({ children }) => {
+  await router.createLayout("/admin/*", async ({ children, route }) => {
+    console.log(route)
     return (
       <div>
         <h1>Admin Layout</h1>

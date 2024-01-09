@@ -23,7 +23,7 @@ interface Route<Path extends string> {
   type?: RouteType;
   method?: RouteMethods | string | null
 }
-type LayoutHandler = ({ children }: { children: React.ReactNode }) => Promise<React.ReactElement>
+type LayoutHandler = ({ children, route }: { children: React.ReactNode, route: string }) => Promise<React.ReactElement>
 
 interface Layout<Path extends string> {
   path: Path;
@@ -128,7 +128,7 @@ class Router {
       const layout = this.findMatchingLayout(this.currentRoute);
 
       if (layout) {
-        return await layout.handler({ children });
+        return await layout.handler({ children, route: this.currentRoute });
       }
 
       const Layout = async ({ children }: { children: React.ReactNode }) => {
