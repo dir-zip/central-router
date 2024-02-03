@@ -1,5 +1,11 @@
 import router from "../../lib/router";
 
+
+export async function generateMetadata() {
+  const meta = router.generateMetadata();
+  return meta;
+} 
+
 export default async function Page({ params }: { params: { "router": string[] } }) {
   const getParams = params["router"];
 
@@ -35,13 +41,13 @@ export default async function Page({ params }: { params: { "router": string[] } 
   })
 
   router.addRoute("/billing/webhook", async (_, request) => {
-    console.log(request.nextUrl)
+    console.log(request?.nextUrl)
     return new Response("hello", { status: 200 })
   }, "api:GET")
 
   router.addRoute("/", async () => {
     return <div>This is a test without a layout</div>
-  })
+  }, "page", { title: "Home" })
 
 
 

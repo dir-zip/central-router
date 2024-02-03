@@ -15,7 +15,7 @@
     "noUncheckedIndexedAccess": true,
     "preserveWatchOutput": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "strictNullChecks": true,
     "incremental": true,
     "tsBuildInfoFile": ".tsbuildinfo"

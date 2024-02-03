@@ -1,4 +1,5 @@
 import React from "react";
+import { Metadata } from "next";
 import { NextRequest } from 'next/server'
 
 export type RouteType = "page" | "api:GET" | "api:POST" | "api:PUT" | "api:DELETE" | "api:PATCH"
@@ -13,7 +14,7 @@ export type RouteParams<Path extends string> = Path extends `${infer Segment}/${
   : RouteParams<Rest>
   : Path extends `:${infer Param}`
   ? { [K in Param]: string }
-  : Record<string, never>;
+  : Record<string, string>;
 
 interface Route<Path extends string> {
   path: Path;
@@ -21,6 +22,7 @@ interface Route<Path extends string> {
   hasParams: boolean;
   priority: number;
   type?: RouteType;
+  metadata?: Metadata,
   method?: RouteMethods | string | null
 }
 type LayoutHandler = ({ children, route }: { children: React.ReactNode, route: string }) => Promise<React.ReactElement>
@@ -32,8 +34,8 @@ interface Layout<Path extends string> {
 }
 
 class Router {
-  private routes: Route<any>[];
-  private layouts: Layout<any>[]
+  private routes: Route<string>[];
+  private layouts: Layout<string>[]
   currentRoute: string;
 
   constructor() {
@@ -42,7 +44,7 @@ class Router {
     this.currentRoute = '';
   }
 
-  public addRoute<Path extends string>(path: Path, handler: RouteHandler<RouteParams<Path>>, type: RouteType = "page") {
+  public addRoute<Path extends string>(path: Path, handler: RouteHandler<RouteParams<Path>>, type: RouteType = "page", metadata?: Metadata): void {
     const hasParams = path.includes(':');
     const getType = type.includes(':') ? 'api' : 'page'
 
@@ -52,14 +54,18 @@ class Router {
       hasParams,
       priority: this.calculatePriority(path),
       type,
+      metadata,
       method: getType === "api" ? type.split(":")[1] : "GET"
     });
 
     // make sure the list is sorted in descending order of priority
     this.routes.sort((a, b) => b.priority - a.priority);
   }
-
-  public async createLayout<Path extends string>(path: Path, handler: LayoutHandler) {
+  public generateMetadata(): Metadata {
+    const { route } = this.findMatchingRoute(this.currentRoute);
+    return route ? route.metadata as Metadata : {}
+  }
+  public async createLayout<Path extends string>(path: Path, handler: LayoutHandler): Promise<void> {
     this.layouts.push({
       path,
       handler,
@@ -88,9 +94,9 @@ class Router {
 
   public initApiRoute() {
 
-    const handleRoute = async (request, context) => {
-      const pathString = context.params['router'] ? "/api/" + context.params['router'].join("/") : "/"
-      const { route, params } = this.findMatchingRoute("/api/" + context.params['router'].join("/"));
+    const handleRoute = async (request: NextRequest, context: {params: {router?: string[]}}) => {
+      const pathString = `/api/${context.params['router']?.join("/") ?? "/"}`;
+      const { route, params } = this.findMatchingRoute(pathString);
 
       if (route && route.method === request.method) {
         this.currentRoute = route.path
@@ -101,22 +107,22 @@ class Router {
     }
 
     return {
-      GET: async function GET(request, context) {
+      GET: async function GET(request: NextRequest, context: {params: {router?: string[]}}) {
         return await handleRoute(request, context)
       },
-      POST: async function POST(request, context) {
+      POST: async function POST(request: NextRequest, context: {params: {router?: string[]}}) {
         return await handleRoute(request, context)
       },
-      HEAD: async function HEAD(request, context) {
+      HEAD: async function HEAD(request: NextRequest, context: {params: {router?: string[]}}) {
         return await handleRoute(request, context)
       },
-      PUT: async function PUT(request, context) {
+      PUT: async function PUT(request: NextRequest, context: {params: {router?: string[]}}) {
         return await handleRoute(request, context)
       },
-      DELETE: async function DELETE(request, context) {
+      DELETE: async function DELETE(request: NextRequest, context: {params: {router?: string[]}}) {
         return await handleRoute(request, context)
       },
-      PATCH: async function PATCH(request, context) {
+      PATCH: async function PATCH(request: NextRequest, context: {params: {router?: string[]}}) {
         return await handleRoute(request, context)
       }
     }
@@ -157,7 +163,7 @@ class Router {
 
 
 
-  private findMatchingLayout(path: string, layouts = this.layouts): Layout<any> | null {
+  private findMatchingLayout(path: string, layouts = this.layouts): Layout<string> | null {
     const { route } = this.findMatchingRoute(path);
     if (route) {
       for (const layout of layouts) {
@@ -171,9 +177,9 @@ class Router {
   }
 
 
-  private findMatchingRoute(path: string, routes = this.routes): { route: Route<any> | null; params: RouteParams<any> } {
-    let bestMatch: Route<any> | null = null;
-    let bestParams: RouteParams<any> = {};
+  private findMatchingRoute(path: string, routes = this.routes): { route: Route<string> | null; params: RouteParams<string> } {
+    let bestMatch: Route<string> | null = null;
+    let bestParams: RouteParams<string> = {};
 
     for (const route of routes) {
       const { path: routePath } = route;
