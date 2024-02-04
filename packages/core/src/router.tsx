@@ -7,6 +7,7 @@ export type RouteType = "page" | "api:GET" | "api:POST" | "api:PUT" | "api:DELET
 export type RouteMethods = "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
 
 export type RouteHandler<T extends RouteParams<string>> = (params: T, request: NextRequest | null) => Promise<React.ReactElement | Response>;
+export type MetadataHandler<T extends RouteParams<string>> = (params: T) => Metadata;
 
 export type RouteParams<Path extends string> = Path extends `${infer Segment}/${infer Rest}`
   ? Segment extends `:${infer Param}`
@@ -22,7 +23,7 @@ interface Route<Path extends string> {
   hasParams: boolean;
   priority: number;
   type?: RouteType;
-  metadata?: Metadata,
+  metadata?: MetadataHandler<RouteParams<Path>>;
   method?: RouteMethods | string | null
 }
 type LayoutHandler = ({ children, route }: { children: React.ReactNode, route: string }) => Promise<React.ReactElement>
@@ -44,26 +45,34 @@ class Router {
     this.currentRoute = '';
   }
 
-  public addRoute<Path extends string>(path: Path, handler: RouteHandler<RouteParams<Path>>, type: RouteType = "page", metadata?: Metadata): void {
+  public addRoute<Path extends string>(path: Path, handler: RouteHandler<RouteParams<Path>>, type: RouteType = "page",  metadata?: MetadataHandler<RouteParams<Path>>): void {
     const hasParams = path.includes(':');
     const getType = type.includes(':') ? 'api' : 'page'
 
+
     this.routes.push({
-      path: getType === "api" ? `/api${path}` : path,
+      path: getType === "api" ? `/api${path}` : path, 
       handler,
       hasParams,
       priority: this.calculatePriority(path),
       type,
-      metadata,
+      metadata: metadata,
       method: getType === "api" ? type.split(":")[1] : "GET"
     });
 
     // make sure the list is sorted in descending order of priority
     this.routes.sort((a, b) => b.priority - a.priority);
   }
-  public generateMetadata(): Metadata {
-    const { route } = this.findMatchingRoute(this.currentRoute);
-    return route ? route.metadata as Metadata : {}
+  public generateMetadata(_params: string[]): Metadata {
+    const pathString = _params ? "/" + _params.join("/") : "/"
+    const { route, params } = this.findMatchingRoute(pathString);
+
+
+    if (route && route.metadata) {
+      return route.metadata(params); 
+    } else {
+      return {}; 
+    }
   }
   public async createLayout<Path extends string>(path: Path, handler: LayoutHandler): Promise<void> {
     this.layouts.push({
@@ -94,38 +103,34 @@ class Router {
 
   public initApiRoute() {
 
-    const handleRoute = async (request: NextRequest, context: {params: {router?: string[]}}) => {
+    const handleRoute = async (request: NextRequest, context: {params: {router?: string[]}}): Promise<Response | void> => {
       const pathString = `/api/${context.params['router']?.join("/") ?? "/"}`;
       const { route, params } = this.findMatchingRoute(pathString);
 
       if (route && route.method === request.method) {
-        this.currentRoute = route.path
-        return await route.handler(params, request);
+        this.currentRoute = route.path;
+        // Ensure route.handler returns Response or void
+        const result = await route.handler(params, request);
+        if (result instanceof Response || typeof result === "undefined") {
+          return result;
+        } else {
+          // Handle unexpected return types, possibly log an error or return a default Response
+          console.error("Invalid return type from route handler");
+          return new Response("Internal Server Error", { status: 500 });
+        }
       } else {
-        throw new Error(`No route found for ${pathString}`)
+        throw new Error(`No route found for ${pathString}`);
       }
-    }
+    };
 
     return {
-      GET: async function GET(request: NextRequest, context: {params: {router?: string[]}}) {
-        return await handleRoute(request, context)
-      },
-      POST: async function POST(request: NextRequest, context: {params: {router?: string[]}}) {
-        return await handleRoute(request, context)
-      },
-      HEAD: async function HEAD(request: NextRequest, context: {params: {router?: string[]}}) {
-        return await handleRoute(request, context)
-      },
-      PUT: async function PUT(request: NextRequest, context: {params: {router?: string[]}}) {
-        return await handleRoute(request, context)
-      },
-      DELETE: async function DELETE(request: NextRequest, context: {params: {router?: string[]}}) {
-        return await handleRoute(request, context)
-      },
-      PATCH: async function PATCH(request: NextRequest, context: {params: {router?: string[]}}) {
-        return await handleRoute(request, context)
-      }
-    }
+      GET: handleRoute,
+      POST: handleRoute,
+      HEAD: handleRoute,
+      PUT: handleRoute,
+      DELETE: handleRoute,
+      PATCH: handleRoute,
+    };
 
   }
 

@@ -1,10 +1,13 @@
 import router from "../../lib/router";
 
 
-export async function generateMetadata() {
-  const meta = router.generateMetadata();
+export async function generateMetadata({ params }: { params: { router: string[] } }) {
+  const getParams = params["router"];
+
+  const meta = router.generateMetadata(getParams);
   return meta;
-} 
+}
+
 
 export default async function Page({ params }: { params: { "router": string[] } }) {
   const getParams = params["router"];
@@ -30,10 +33,18 @@ export default async function Page({ params }: { params: { "router": string[] } 
 
   router.addRoute("/:slug", async (params) => {
     return <div>{params.slug}</div>
+  }, 'page', ({slug}: {slug: string}) => {
+    return {
+      title: slug
+    }
   })
 
   router.addRoute("/:slug/nested", async (params) => {
     return <div>{params.slug} Nested</div>;
+  }, 'page', ({slug}: {slug: string}) => {
+    return {
+      title: slug
+    }
   });
 
   router.addRoute('/admin', async () => {
@@ -47,7 +58,11 @@ export default async function Page({ params }: { params: { "router": string[] } 
 
   router.addRoute("/", async () => {
     return <div>This is a test without a layout</div>
-  }, "page", { title: "Home" })
+  }, "page",  (_params) => {
+    return {
+      title: `Test`
+    }
+  })
 
 
 

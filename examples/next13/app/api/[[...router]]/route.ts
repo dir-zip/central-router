@@ -1,4 +1,4 @@
 import router from '../../../lib/router';
 
-const routes = router.initApiRoute()
-export const { GET, POST, PUT, DELETE, PATCH } = routes;
+
+export const { GET, POST, PATCH, PUT, DELETE } = router.initApiRoute()
