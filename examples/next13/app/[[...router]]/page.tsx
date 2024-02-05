@@ -1,3 +1,4 @@
+import Link from "next/link";
 import router from "../../lib/router";
 
 
@@ -12,14 +13,30 @@ export async function generateMetadata({ params }: { params: { router: string[] 
 export default async function Page({ params }: { params: { "router": string[] } }) {
   const getParams = params["router"];
 
-  await router.createLayout("/admin/*", async ({ children, route }) => {
-    console.log(route)
+  await router.createLayout("/admin/*", async ({ children }) => {
     return (
       <div>
         <h1>Admin Layout</h1>
         {children}
       </div>
     )
+  })
+
+  await router.createLayout("/*", async ({ children }) => {
+    return (
+      <div>
+        <h1>Wildcard Layout</h1>
+        {children}
+      </div>
+    )
+  })
+
+  router.addRoute("/", async () => {
+    return <div>This is a test without a layout<Link href="/admin">Admin</Link></div>
+  }, "page",  (_params) => {
+    return {
+      title: `Test`
+    }
   })
 
   await router.createLayout('/:slug/*', async ({ children }) => {
@@ -48,7 +65,7 @@ export default async function Page({ params }: { params: { "router": string[] } 
   });
 
   router.addRoute('/admin', async () => {
-    return <div>Admin page</div>
+    return <div>Admin page<Link href="/">Home</Link></div>
   })
 
   router.addRoute("/billing/webhook", async (_, request) => {
@@ -56,13 +73,7 @@ export default async function Page({ params }: { params: { "router": string[] } 
     return new Response("hello", { status: 200 })
   }, "api:GET")
 
-  router.addRoute("/", async () => {
-    return <div>This is a test without a layout</div>
-  }, "page",  (_params) => {
-    return {
-      title: `Test`
-    }
-  })
+
 
 
 

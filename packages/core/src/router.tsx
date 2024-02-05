@@ -134,14 +134,15 @@ class Router {
 
   }
 
-  public async initLayout({ children }: { children: React.ReactNode }) {
-    if (this.currentRoute) {
-      const layout = this.findMatchingLayout(this.currentRoute);
+  public async initLayout({ children, pathArray }: { children: React.ReactNode, pathArray: string[] }) {
+    const pathString = pathArray ? "/" + pathArray.join("/") : "/"
 
-      if (layout) {
-        return await layout.handler({ children, route: this.currentRoute });
-      }
+    if (pathString === '/favicon.ico') {
+      return null;
+    }
 
+    const layout = this.findMatchingLayout(pathString);
+    if (!layout) {
       const Layout = async ({ children }: { children: React.ReactNode }) => {
         return (
           <>
@@ -149,9 +150,16 @@ class Router {
           </>
         )
       }
-
       return await Layout({ children });
+      
     }
+
+
+
+    return await layout.handler({ children, route: pathString });
+
+
+    
   }
 
   private calculatePriority(path: string): number {
@@ -160,7 +168,7 @@ class Router {
     if (hasParamAfterFirstSlash) {
       return 1;
     } else if (path.includes('*')) {
-      return 0;
+      return 4;
     } else {
       return 2;
     }
