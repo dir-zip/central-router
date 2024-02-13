@@ -7,7 +7,7 @@ export type RouteType = "page" | "api:GET" | "api:POST" | "api:PUT" | "api:DELET
 export type RouteMethods = "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
 
 export type RouteHandler<T extends RouteParams<string>> = (params: T, request: NextRequest | null) => Promise<React.ReactElement | Response>;
-export type MetadataHandler<T extends RouteParams<string>> = (params: T) => Metadata;
+export type MetadataHandler<T extends RouteParams<string>> = (params: T) => Promise<Metadata>;
 
 export type RouteParams<Path extends string> = Path extends `${infer Segment}/${infer Rest}`
   ? Segment extends `:${infer Param}`
@@ -63,17 +63,19 @@ class Router {
     // make sure the list is sorted in descending order of priority
     this.routes.sort((a, b) => b.priority - a.priority);
   }
-  public generateMetadata(_params: string[]): Metadata {
+  
+  public async generateMetadata(_params: string[]): Promise<Metadata> {
     const pathString = _params ? "/" + _params.join("/") : "/"
     const { route, params } = this.findMatchingRoute(pathString);
 
 
     if (route && route.metadata) {
-      return route.metadata(params); 
+      return await route.metadata(params)
     } else {
       return {}; 
     }
   }
+
   public async createLayout<Path extends string>(path: Path, handler: LayoutHandler): Promise<void> {
     this.layouts.push({
       path,
@@ -163,30 +165,30 @@ class Router {
   }
 
   private calculatePriority(path: string): number {
-    // check if there's a parameter after the first '/'
-    const hasParamAfterFirstSlash = /\/[^/]+\/:/.test(path);
-    if (hasParamAfterFirstSlash) {
-      return 1;
-    } else if (path.includes('*')) {
-      return 4;
+    const segmentCount = path.split('/').filter(Boolean).length;
+    const hasWildcard = path.endsWith('*');
+    const hasParam = path.includes(':');
+    if (hasWildcard) {
+      return 200 + segmentCount; // More segments mean more specific wildcard paths
+    } else if (hasParam) {
+      return 300 + segmentCount; // Parameterized paths have higher priority
     } else {
-      return 2;
+      return 400 + segmentCount; // Static paths have the highest priority
     }
   }
 
 
 
   private findMatchingLayout(path: string, layouts = this.layouts): Layout<string> | null {
-    const { route } = this.findMatchingRoute(path);
-    if (route) {
-      for (const layout of layouts) {
-        if (route.path.startsWith(layout.path.replace("/*", ""))) {
-          return layout;
+    let bestMatch: Layout<string> | null = null;
+    for (const layout of layouts) {
+      if (this.isPathMatch(path, layout.path)) {
+        if (!bestMatch || layout.priority > bestMatch.priority) {
+          bestMatch = layout;
         }
       }
     }
-
-    return null;
+    return bestMatch;
   }
 
 
@@ -217,28 +219,43 @@ class Router {
     return path === routePath.replace(/\/:.*?($|\/)/g, "/");  // Replace parameters in the routePath with empty strings
   }
 
-  private isPathMatch(path: string, routePath: string) {
-    const pathSegments = path.split("/").filter((segment) => segment !== "");
-    const routeSegments = routePath.split("/").filter((segment) => segment !== "");
-
-    if (pathSegments.length !== routeSegments.length) {
-      return false;
-    }
-
-    for (let i = 0; i < pathSegments.length; i++) {
-      const pathSegment = pathSegments[i];
-      const routeSegment = routeSegments[i];
-
-      if (routeSegment?.startsWith(":")) {
-        continue;
+  private isPathMatch(path: string, routePath: string): boolean {
+    // Check if the routePath ends with a wildcard
+    if (routePath.endsWith('*')) {
+      // Remove the wildcard for base comparison, ensuring to capture the base path correctly
+      const basePath = routePath.slice(0, -1);
+  
+      // Match both the basePath exactly and basePath as a prefix
+      if (path === basePath.slice(0, -1) || path.startsWith(basePath)) {
+        return true;
       }
-
-      if (pathSegment !== routeSegment) {
+    } else {
+      // Split paths into segments for comparison
+      const pathSegments = path.split("/").filter(Boolean);
+      const routeSegments = routePath.split("/").filter(Boolean);
+  
+      // Early return if segment lengths don't match
+      if (pathSegments.length !== routeSegments.length) {
         return false;
       }
+  
+      // Compare each segment
+      for (let i = 0; i < pathSegments.length; i++) {
+        const pathSegment = pathSegments[i];
+        const routeSegment = routeSegments[i];
+  
+        // Continue matching if the route segment is a parameter or matches exactly
+        if (!routeSegment?.startsWith(":") && pathSegment !== routeSegment) {
+          return false;
+        }
+      }
+  
+      // If all segments match or are parameters, return true
+      return true;
     }
-
-    return true;
+  
+    // Default to false if no other conditions are met
+    return false;
   }
 
   private extractParams(path: string, routePath: string): RouteParams<any> {
